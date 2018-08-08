@@ -118,13 +118,14 @@ def next():
     tmpfile=os.path.split(outfile)[0]
     tmpfile=tmpfile+".tmp"
     with open(outfile, 'r', newline='') as f, open(tmpfile, 'w', newline='') as data:
-    next(f)  # Skip over header in input file.
-    writer.writerow(c)
-    writer = csv.writer(data, quoting=csv.QUOTE_ALL)
-    writer.writerows(line.split() for line in f)
+      next(f)  # Skip over header in input file.
+      writer.writerow(c)
+      writer = csv.writer(data, quoting=csv.QUOTE_ALL)
+      writer.writerows(line.split() for line in f)
     os.rename(outfile, os.path.split(outfile)[0]+".old")
     os.rename(tmpfile,os.path.split(tmpfile)[0]+".sav")
     return (render_template("download.html"))
+  
   print (a[t],b[t],c[t],t)
   ret=strip_it(c[t])
   print('words after strip',len(ret), ret)
