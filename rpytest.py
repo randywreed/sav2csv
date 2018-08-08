@@ -124,7 +124,7 @@ def next():
     writer.writerows(line.split() for line in f)
     os.rename(outfile, os.path.split(outfile)[0]+".old")
     os.rename(tmpfile,os.path.split(tmpfile)[0]+".sav")
-
+    return (render_template("download.html"))
   print (a[t],b[t],c[t],t)
   ret=strip_it(c[t])
   print('words after strip',len(ret), ret)
@@ -143,10 +143,10 @@ def return_files_tut():
   
 @app.route('/return-codefile/')
 def return_files_tut():
-  global outfile
-  head, tail = os.path.split(outfile)
+  global codefile
+  head, tail = os.path.split(codefile)
 	try:
-		return send_file(outfile, attachment_filename=tail)
+		return send_file(codefile, attachment_filename=tail)
 	except Exception as e:
 		return str(e)
   
