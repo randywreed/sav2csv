@@ -134,22 +134,22 @@ def next():
   return render_template("edvar.html", cur=t, tot=len(c), field=b[t], variable=c[t], stripvariable=c_strip, stripnsv=c_stripns)
 
 @app.route('/return-datafile/')
-def return_files_tut():
+def return_files_dat():
   global outfile
   head, tail = os.path.split(outfile)
-	try:
-		return send_file(outfile, attachment_filename=tail)
-	except Exception as e:
-		return str(e)
+  try:
+    return send_file(outfile, attachment_filename=tail)
+  except Exception as e:
+    return str(e)
   
 @app.route('/return-codefile/')
-def return_files_tut():
+def return_files_code():
   global codefile
   head, tail = os.path.split(codefile)
-	try:
-		return send_file(codefile, attachment_filename=tail)
-	except Exception as e:
-		return str(e)
+  try:
+    return send_file(codefile, attachment_filename=tail)
+  except Exception as e:
+    return str(e)
   
   
 def strip_it(initialsent):
