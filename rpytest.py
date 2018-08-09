@@ -1,7 +1,7 @@
 from rpy2.robjects.packages import importr
 from rpy2 import robjects
 import os
-from flask import Flask, render_template, request, url_for, flash, redirect
+from flask import Flask, render_template, request, url_for, flash, redirect, send_file
 from werkzeug.utils import secure_filename
 from nltk.corpus import stopwords
 import csv
@@ -109,6 +109,7 @@ def next():
     global codefile
     head, tail=os.path.split(outfile)
     codefile=head+"codefile_"+tail
+    print('codefile=',codefile)
     rows=zip(a,b,c)
     with open(codefile,"w") as d:
       writer=csv.writer(d)
@@ -123,7 +124,7 @@ def next():
       writer.writerow(c)      
       writer.writerows(line.split() for line in f)
     os.rename(outfile, os.path.split(outfile)[0]+".old")
-    os.rename(tmpfile,os.path.split(tmpfile)[0]+".sav")
+    os.rename(tmpfile,os.path.split(tmpfile)[0]+".csv")
     return (render_template("download.html"))
   
   print (a[t],b[t],c[t],t)
