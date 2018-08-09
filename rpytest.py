@@ -45,9 +45,9 @@ def upload():
   print ("outfile=",outfile)
   #create dataframe of save file
   robjects.r.assign('dest',destination)
-
+  robjects.r.assign('outfile',outfile)
   robjects.r('dataset1<-read.spss(dest,to.data.frame=TRUE)')
-  
+  robjects.r('write.csv(dataset1, file=outfile, row.names=FALSE)')
   dataset1=robjects.r('dataset1')
   #print(robjects.r('head(dataset1)'))
   print(robjects.r('names(dataset1)'))
@@ -118,9 +118,9 @@ def next():
     tmpfile=os.path.split(outfile)[0]
     tmpfile=tmpfile+".tmp"
     with open(outfile, 'r', newline='') as f, open(tmpfile, 'w', newline='') as data:
-      next(f)  # Skip over header in input file.
-      writer.writerow(c)
+      #next(f)  # Skip over header in input file.
       writer = csv.writer(data, quoting=csv.QUOTE_ALL)
+      writer.writerow(c)      
       writer.writerows(line.split() for line in f)
     os.rename(outfile, os.path.split(outfile)[0]+".old")
     os.rename(tmpfile,os.path.split(tmpfile)[0]+".sav")
