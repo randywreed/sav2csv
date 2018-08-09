@@ -108,7 +108,7 @@ def next():
     #write code file to csv
     global codefile
     head, tail=os.path.split(outfile)
-    codefile=head+"codefile_"+tail
+    codefile=head+"/codefile_"+tail
     print('codefile=',codefile)
     rows=zip(a,b,c)
     with open(codefile,"w") as d:
@@ -116,15 +116,18 @@ def next():
       for row in rows:
         writer.writerow(row)
     #write data file with new column names
+    global outfile
     tmpfile=os.path.split(outfile)[0]
     tmpfile=tmpfile+".tmp"
+    print('tmpfile=',tmpfile)
     with open(outfile, 'r', newline='') as f, open(tmpfile, 'w', newline='') as data:
       #next(f)  # Skip over header in input file.
       writer = csv.writer(data, quoting=csv.QUOTE_ALL)
       writer.writerow(c)      
       writer.writerows(line.split() for line in f)
     os.rename(outfile, os.path.split(outfile)[0]+".old")
-    os.rename(tmpfile,os.path.split(tmpfile)[0]+".csv")
+    os.rename(tmpfile,os.path.split(outfile)[0]+".csv")
+    print('outfile=',outfile)
     return (render_template("download.html"))
   
   print (a[t],b[t],c[t],t)
