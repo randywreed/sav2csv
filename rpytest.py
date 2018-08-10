@@ -107,7 +107,10 @@ def next():
   if action=="Write":
     #write code file to csv
     global codefile
+    global outfile
     head, tail=os.path.split(outfile)
+    print('outfile head=',head)
+    print('outfile tail=',tail)
     codefile=head+"/codefile_"+tail
     print('codefile=',codefile)
     rows=zip(a,b,c)
@@ -116,17 +119,18 @@ def next():
       for row in rows:
         writer.writerow(row)
     #write data file with new column names
-    global outfile
-    tmpfile=os.path.split(outfile)[0]
+    tmpfile=os.path.splitext(outfile)[0]
+    print('split 0=',os.path.splitext(outfile)[0])
+    print('split 1=', os.path.splitext(outfile)[1])
     tmpfile=tmpfile+".tmp"
     print('tmpfile=',tmpfile)
     with open(outfile, 'r', newline='') as f, open(tmpfile, 'w', newline='') as data:
       #next(f)  # Skip over header in input file.
-      writer = csv.writer(data, quoting=csv.QUOTE_ALL)
+      writer = csv.writer(data, dialect=csv.excel_tab)
       writer.writerow(c)      
-      writer.writerows(line.split() for line in f)
-    os.rename(outfile, os.path.split(outfile)[0]+".old")
-    os.rename(tmpfile,os.path.split(outfile)[0]+".csv")
+      writer.writerows(line for line in f)
+    os.rename(outfile, os.path.splitext(outfile)[0]+".old")
+    os.rename(tmpfile,os.path.splitext(outfile)[0]+".csv")
     print('outfile=',outfile)
     return (render_template("download.html"))
   
