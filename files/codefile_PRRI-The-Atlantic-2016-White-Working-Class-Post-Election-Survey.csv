@@ -2,11 +2,11 @@
 2,week,week
 3,id,
 4,q1,"q1. A lot of people have been telling us they didn't get a chance to vote in this election or they chose not to vote. How about you ... did things come up that kept you from voting, did you CHOOSE not to vote, OR did you happen to vote?"
-5,q2rot,
+5,q2rot,q2rot
 6,q2,reason not vote
 7,q2open,q2open
-8,Q2OPE0,Q2OPE0
-9,Q2OPE1,Q2OPE1
+8,Q2OPE0,q2. SPECIFY OTHER HERE
+9,Q2OPE1,q2. SPECIFY OTHER HERE
 10,Q2OPE2,q2. SPECIFY OTHER HERE
 11,Q2OPE3,q2. SPECIFY OTHER HERE
 12,Q2OPE4,q2. SPECIFY OTHER HERE

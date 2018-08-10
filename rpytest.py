@@ -126,9 +126,12 @@ def next():
     print('tmpfile=',tmpfile)
     with open(outfile, 'r', newline='') as f, open(tmpfile, 'w', newline='') as data:
       #next(f)  # Skip over header in input file.
-      writer = csv.writer(data, dialect=csv.excel_tab)
-      writer.writerow(c)      
-      writer.writerows(line for line in f)
+      writer = csv.writer(data, delimiter=',',quoting=csv.QUOTE_NONNUMERIC)
+      writer.writerow(c)  
+      for line in f:
+        #print(line[:100])
+        writer.writerow([line])
+      #writer.writerows([line] for line in f)
     os.rename(outfile, os.path.splitext(outfile)[0]+".old")
     os.rename(tmpfile,os.path.splitext(outfile)[0]+".csv")
     print('outfile=',outfile)
@@ -158,6 +161,17 @@ def return_files_code():
     return send_file(codefile, attachment_filename=tail)
   except Exception as e:
     return str(e)
+@app.route('/restart')  
+def restart():
+  
+  global outfile
+  mydir=os.path.split(outfile)[0]
+  print(mydir)
+  filelist=[f for f in os.listdir(mydir)]
+  for f in filelist:
+    print('woud delete ',f)
+    #os.remove(os.path.join(mydir,f))
+  return render_template('upload.html')
   
   
 def strip_it(initialsent):
