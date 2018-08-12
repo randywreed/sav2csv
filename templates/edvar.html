@@ -1,11 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>
+function set_btn_status()
+  {
+    if ({{cur}}=={{tot}}) {
+      document.getElementById("Next").disabled= true;
+    } 
+    if ({{cur}}==1) {
+      document.getElementById("Prev").disabled= true;
+    }
+  }
+  </script>
   <meta charset="UTF-8">
   <title>results</title>
 </head>
-<body>
+<body onload="set_btn_status();">
+<h1>file {{name}} </h1>
 <h1>record {{cur}} out of {{tot}}</h1>
+
  <br>
  <form action="{{url_for('next')}}" method=POST>
  <input type="radio", name="userAnswer", value="{{field}}">{{field}}<br>
@@ -15,9 +28,9 @@
   <input type="radio", name="userAnswer", value="">other<br>
  <p><span>user clicked</span><input type="text" size="100" maxlength=100 name="Answer" id="Answer"></p>
    <br>
-   <input type="submit" name="action" value="Prev">
-   <input type="submit" name="action" value="Next">
-   <input type="submit" name="action" value="Write">Write to csv<br>
+   <input type="submit" name="action" id="Prev" value="Prev">
+   <input type="submit" name="action" id="Next" value="Next">
+   <input type="submit" name="action" id="Write" value="Write">Write to csv<br>
   </form>
  <script type="text/javascript">
   function handleUserAnswer(e){

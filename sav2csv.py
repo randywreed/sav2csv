@@ -45,48 +45,39 @@ def upload():
   global outfile
   outfile=os.path.splitext(destination)[0]+".csv"
   print ("outfile=",outfile)
-  #create dataframe of save file
+  #create dataframe of sav file in r
   robjects.r.assign('dest',destination)
   robjects.r.assign('outfile',outfile)
   robjects.r('dataset1<-read.spss(dest,to.data.frame=TRUE)')
+  # resave dataframe as .csv in r
   robjects.r('write.csv(dataset1, file=outfile, row.names=FALSE)')
+  # load dataframe in python
   dataset1=robjects.r('dataset1')
-  #print(robjects.r('head(dataset1)'))
   print(robjects.r('names(dataset1)'))
-  #print(robjects.r('attr(dataset1,"variable.labels")'))
-  #robjects.r('dataset.label<-data.frame(seq.int(names(dataset1)),names(dataset1),attr(dataset1,"variable.labels"), row.names=seq.int(names(dataset1)))')
-  #robjects.r('names(dataset.label)<-c("ID","fieldname","variable")')
+  #extract labels and variables for codebook in r
   robjects.r('lst_seq=seq.int(names(dataset1))')
   robjects.r('lst_names=names(dataset1)')
   robjects.r('lst_variables=attr(dataset1,"variable.labels")')
-  #newdataset=robjects.r('dataset.label')
+  #bring codebook lists from r to python
   global a,b,c,t
   a=robjects.r('lst_seq')
   b=robjects.r('lst_names')
   c=robjects.r('lst_variables')
   c_strip=""
   c_stripns=""
-  
   t=0
-#   c_split=c[t].split(" ")
-#   for word in c_split:
-#     if word not in en_stops:
-#       c_strip=c_strip+word+" "
-#       c_stripns=c_stripns+word+"_"
-#   c_stripns=c_stripns.rstrip('_')
+  # strip stopwords and punctation and create options for labels
   ret=strip_it(c[t])
   print(len(ret))
   c_strip=ret[0]
   c_stripns=ret[1]
   print(a[t],b[t],c[t],c_strip,c_stripns)
-  return render_template("uploaded_file.html", name=filename, field=b[t], variable=c[t], stripvariable=c_strip, stripnsv=c_stripns, cur=1, tot=len(c)-1)
+  return render_template("edvar.html", name=filename, cur=1, tot=len(c)-1, field=b[t], variable=c[t], stripvariable=c_strip, stripnsv=c_stripns)
 
 @app.route("/next", methods=['GET','POST'])
 def next():
+  #get new label from form
   print('form=',request.form)
-  #print('action=', request.form['action'])
-  #print('userAnswer=', request.form['userAnswer'])
-  #print('Answer=',request.form['Answer'])
   action=request.form['action']
   if request.form['Answer']!='None':
     newvar=request.form['Answer']
@@ -96,8 +87,11 @@ def next():
   print(action,newvar)
   #rewrite c with new userAnswer
   global t
+  global codefile
+  global outfile
   c[t]=newvar
   print (action, newvar)
+  #if next/prev button was selected go forward/backward
   if action=="Next":
     t=t+1
   else:
@@ -106,13 +100,12 @@ def next():
     t=1
   if t>=len(c):
     t=len(c)-1
+  head, tail=os.path.split(outfile)
+  print('outfile head=',head)
+  print('outfile tail=',tail)
+  # write button was selected, create output .csv for datafile & codebook
   if action=="Write":
     #write code file to csv
-    global codefile
-    global outfile
-    head, tail=os.path.split(outfile)
-    print('outfile head=',head)
-    print('outfile tail=',tail)
     codefile=head+"/codefile_"+tail
     print('codefile=',codefile)
     rows=zip(a,b,c)
@@ -128,35 +121,34 @@ def next():
     print('tmpfile=',tmpfile)
     f=open(outfile, 'r')
     data=open(tmpfile, 'w')
-    #next(f)  # Skip over header in input file.
-    #writer = write(data)
+    #create new header for datafile
     print(c)
     headerlist=','.join(c)
     print(headerlist)
+    #write the new header with modified labels
     data.write(headerlist+"\n")
-    #data.writelines(f)
+    #skip first line, and write the rest of the datafile
     lines=f.readlines()[1:]
     data.writelines(lines)
     f.close()
     data.close()
-      #for line in f:
-        #print(line[:100])
-        #data.write(str(line))
-        #writer.writerows([line] for line in f)
     os.rename(outfile, os.path.splitext(outfile)[0]+".old")
     os.rename(tmpfile,os.path.splitext(outfile)[0]+".csv")
     print('outfile=',outfile)
+    # return download web page
     return (render_template("download.html"))
-  
+  # if next/prev button selected strip next label/variable
   print (a[t],b[t],c[t],t)
   ret=strip_it(c[t])
   print('words after strip',len(ret), ret)
   c_strip=ret[0]
   c_stripns=ret[1]
-  return render_template("edvar.html", cur=t+1, tot=len(c)-1, field=b[t], variable=c[t], stripvariable=c_strip, stripnsv=c_stripns)
+  #return edit variable web page for next label/variables
+  return render_template("edvar.html", name=tail, cur=t+1, tot=len(c), field=b[t], variable=c[t], stripvariable=c_strip, stripnsv=c_stripns)
 
 @app.route('/return-datafile/')
 def return_files_dat():
+  #send datafile 
   global outfile
   head, tail = os.path.split(outfile)
   print (outfile, head, tail)
@@ -167,14 +159,17 @@ def return_files_dat():
   
 @app.route('/return-codefile/')
 def return_files_code():
+  #send codebook
   global codefile
   head, tail = os.path.split(codefile)
   try:
     return send_from_directory(head, tail, attachment_filename=tail)
   except Exception as e:
     return str(e)
+
 @app.route('/restart')  
 def restart(): 
+  #restart button selected, clean up previous files and go back to upload.html
   global outfile
   print("outfile=",outfile)
   mydir=os.path.split(outfile)[0]
@@ -187,11 +182,13 @@ def restart():
 
 @app.after_request
 def add_header(response):
+  #purge cache
   response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
   response.headers['Cache-Control'] = 'public, max-age=0'
   return response  
   
 def strip_it(initialsent):
+  #remove puntuation, stopwords, and add spaces to runon words 
   translator = str.maketrans('', '', string.punctuation)
   newvar=initialsent.translate(translator)
   print('after punctuation strip=',newvar)
