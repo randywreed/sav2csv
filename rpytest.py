@@ -1,7 +1,7 @@
 from rpy2.robjects.packages import importr
 from rpy2 import robjects
 import os
-from flask import Flask, render_template, request, url_for, flash, redirect, send_file
+from flask import Flask, render_template, request, url_for, flash, redirect, send_file, send_from_directory
 from werkzeug.utils import secure_filename
 from nltk.corpus import stopwords
 import csv
@@ -65,7 +65,7 @@ def upload():
   c_strip=""
   c_stripns=""
   
-  t=5
+  t=0
 #   c_split=c[t].split(" ")
 #   for word in c_split:
 #     if word not in en_stops:
@@ -102,8 +102,8 @@ def next():
     t=t-1
   if t<0:
     t=1
-  if t>len(c):
-    t=len(c)
+  if t>=len(c):
+    t=len(c)-1
   if action=="Write":
     #write code file to csv
     global codefile
@@ -124,14 +124,24 @@ def next():
     print('split 1=', os.path.splitext(outfile)[1])
     tmpfile=tmpfile+".tmp"
     print('tmpfile=',tmpfile)
-    with open(outfile, 'r', newline='') as f, open(tmpfile, 'w', newline='') as data:
-      #next(f)  # Skip over header in input file.
-      writer = csv.writer(data, delimiter=',',quoting=csv.QUOTE_NONNUMERIC)
-      writer.writerow(c)  
-      for line in f:
+    f=open(outfile, 'r')
+    data=open(tmpfile, 'w')
+    #next(f)  # Skip over header in input file.
+    #writer = write(data)
+    print(c)
+    headerlist=','.join(c)
+    print(headerlist)
+    data.write(headerlist+"\n")
+    #data.writelines(f)
+    for line in f:
+      #print (line)
+      data.write(str(line))
+    f.close()
+    data.close()
+      #for line in f:
         #print(line[:100])
-        writer.writerow([line])
-      #writer.writerows([line] for line in f)
+        #data.write(str(line))
+        #writer.writerows([line] for line in f)
     os.rename(outfile, os.path.splitext(outfile)[0]+".old")
     os.rename(tmpfile,os.path.splitext(outfile)[0]+".csv")
     print('outfile=',outfile)
@@ -148,8 +158,9 @@ def next():
 def return_files_dat():
   global outfile
   head, tail = os.path.split(outfile)
+  print (outfile, head, tail)
   try:
-    return send_file(outfile, attachment_filename=tail)
+    return send_from_directory(head, tail, attachment_filename=tail)
   except Exception as e:
     return str(e)
   
@@ -158,21 +169,26 @@ def return_files_code():
   global codefile
   head, tail = os.path.split(codefile)
   try:
-    return send_file(codefile, attachment_filename=tail)
+    return send_from_directory(head, tail, attachment_filename=tail)
   except Exception as e:
     return str(e)
 @app.route('/restart')  
-def restart():
-  
+def restart(): 
   global outfile
+  print("outfile=",outfile)
   mydir=os.path.split(outfile)[0]
   print(mydir)
   filelist=[f for f in os.listdir(mydir)]
   for f in filelist:
-    print('woud delete ',f)
-    #os.remove(os.path.join(mydir,f))
+    print('delete ',f)
+    os.remove(os.path.join(mydir,f))
   return render_template('upload.html')
-  
+
+@app.after_request
+def add_header(response):
+  response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
+  response.headers['Cache-Control'] = 'public, max-age=0'
+  return response  
   
 def strip_it(initialsent):
   c_split=initialsent.split(" ")

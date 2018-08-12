@@ -1,3 +1,5 @@
 *.sav
 *.tmp
 *.old
+*.csv
+
