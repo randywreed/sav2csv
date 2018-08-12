@@ -133,7 +133,10 @@ def next():
     print(headerlist)
     data.write(headerlist+"\n")
     #data.writelines(f)
-    for line in f:
+    iterc=iter(c)
+    next()
+    for line in iterc:
+      
       #print (line)
       data.write(str(line))
     f.close()
