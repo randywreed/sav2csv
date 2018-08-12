@@ -5,6 +5,8 @@ from flask import Flask, render_template, request, url_for, flash, redirect, sen
 from werkzeug.utils import secure_filename
 from nltk.corpus import stopwords
 import csv
+import string
+import re 
 #print (rpy2.__version__)
 foreign=importr("foreign")
 en_stops=set(stopwords.words('english'))
@@ -77,7 +79,7 @@ def upload():
   c_strip=ret[0]
   c_stripns=ret[1]
   print(a[t],b[t],c[t],c_strip,c_stripns)
-  return render_template("uploaded_file.html", name=filename, field=b[t], variable=c[t], stripvariable=c_strip, stripnsv=c_stripns)
+  return render_template("uploaded_file.html", name=filename, field=b[t], variable=c[t], stripvariable=c_strip, stripnsv=c_stripns, cur=1, tot=len(c)-1)
 
 @app.route("/next", methods=['GET','POST'])
 def next():
@@ -133,12 +135,8 @@ def next():
     print(headerlist)
     data.write(headerlist+"\n")
     #data.writelines(f)
-    iterc=iter(c)
-    next()
-    for line in iterc:
-      
-      #print (line)
-      data.write(str(line))
+    lines=f.readlines()[1:]
+    data.writelines(lines)
     f.close()
     data.close()
       #for line in f:
@@ -155,7 +153,7 @@ def next():
   print('words after strip',len(ret), ret)
   c_strip=ret[0]
   c_stripns=ret[1]
-  return render_template("edvar.html", cur=t, tot=len(c), field=b[t], variable=c[t], stripvariable=c_strip, stripnsv=c_stripns)
+  return render_template("edvar.html", cur=t+1, tot=len(c)-1, field=b[t], variable=c[t], stripvariable=c_strip, stripnsv=c_stripns)
 
 @app.route('/return-datafile/')
 def return_files_dat():
@@ -194,7 +192,12 @@ def add_header(response):
   return response  
   
 def strip_it(initialsent):
-  c_split=initialsent.split(" ")
+  translator = str.maketrans('', '', string.punctuation)
+  newvar=initialsent.translate(translator)
+  print('after punctuation strip=',newvar)
+  newvar=re.sub(r'([a-z](?=[A-Z])|[A-Z](?=[A-Z][a-z]))', r'\1 ', newvar)
+  print('add spaces if necessary=',newvar)
+  c_split=newvar.split(" ")
   c_strip=""
   c_stripns=""
   for word in c_split:
@@ -203,13 +206,3 @@ def strip_it(initialsent):
       c_stripns=c_stripns+word+"_"
   c_stripns=c_stripns.rstrip('_')
   return (c_stripns,c_strip)
-#install.packages("foreign")
-#library(foreign)
-#dataset1=read.spss('PRRI_workingclass.sav',to.data.frame=TRUE)
-#head(dataset1)
-#attr(dataset1,"variable.labels")
-#names(dataset1)
-#dataset.labels<-data.frame(attr(dataset1,"variable.labels"))
-#dataset.labels<-data.frame(attr(dataset1,"variable.labels"),names(dataset1))
-#names(dataset.labels)<-c("label","variable")
-#dataset.labels$outlabels<-dataset.labels$variable'''

@@ -8,6 +8,8 @@
 <h1>file {{name}} uploaded</h1>
   <a href="http://pysav2csv-reedrw868809.codeanyapp.com:5000">Home</a>
  <br>
+  <h1>record {{cur}} out of {{tot}}</h1>
+<br>
  <form action="{{url_for('next')}}" method="post">
  <input type="radio", name="userAnswer", value="{{field}}">{{field}}<br>
  <input type="radio", name="userAnswer", value="{{variable}}">{{variable}}<br>
@@ -16,8 +18,9 @@
  <input type="radio", name="userAnswer", value="">other<br>
  <p><span>user clicked</span><input type="text" size="100" maxlength=100 name="Answer" id="Answer"></p>
    <br>
-   <input type="submit" name="action" value="Next">
    <input type="submit" name="action" value="Prev">
+   <input type="submit" name="action" value="Next">
+
   </form>
  <script type="text/javascript">
   function handleUserAnswer(e){
