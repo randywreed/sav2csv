@@ -15,21 +15,16 @@ Installation:
 
 clone the git repository to your server
 
-pip3 install Flask
-
-pip3 install rpy2 (R will need to be installed on your system first "apt-get install r-base")
-
-pip3 install nltk
+    pip3 install Flask
+    pip3 install rpy2 (R will need to be installed on your system first "apt-get install r-base")
+    pip3 install nltk
 
 after installation, start python. in python type:
 
-  import nltk
-  
-  from nltk.corpus import stopwords
-  
-  nltk.download('stopwords')
-  
-  stopwords = stopwords.words('english')
+    import nltk
+    from nltk.corpus import stopwords
+    nltk.download('stopwords')
+    stopwords = stopwords.words('english')
 
 This only needs to be run one time
 
@@ -38,11 +33,9 @@ afterwords run the shell script ./startflask.sh
 This set location parameters, which you may or may not need or
 type
 
-export FLASK_APP=sav2csv.py
-
-flask run --host=0.0.0.0
-
-(If you get complaints bout 
+    export FLASK_APP=sav2csv.py
+    flask run --host=0.0.0.0
+ 
 
 The goto the web page.
 
